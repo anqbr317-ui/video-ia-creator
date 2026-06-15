@@ -1,1 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Video IA Studio Free</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:white}
+header{padding:40px;text-align:center;background:linear-gradient(135deg,#2563eb,#9333ea)}
+h1{font-size:35px}
+.box{max-width:1000px;margin:25px auto;background:#1e293b;padding:20px;border-radius:15px}
+input,select,textarea,button{width:100%;padding:13px;margin:8px 0;border:0;border-radius:8px;font-size:16px}
+button{background:#38bdf8;font-weight:bold;cursor:pointer}
+textarea{height:170px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.cat{background:#334155;padding:15px;text-align:center;border-radius:10px;cursor:pointer}
+.cat:hover{background:#38bdf8;color:#000}
+.result{background:#020617;padding:15px;border-radius:10px;margin-top:10px}
+footer{text-align:center;padding:25px;background:#020617}
+</style>
+</head>
+<body>
 
+<header>
+<h1>🎬 Video IA Studio Free</h1>
+<p>Crée des scripts, prompts IA, voix multilingue et projets vidéo MP4 jusqu’à 1 minute</p>
+</header>
+
+<div class="box">
+<h2>📂 Catégories</h2>
+<div class="grid">
+<div class="cat" onclick="setCat('Animaux')">🐶 Animaux</div>
+<div class="cat" onclick="setCat('Dinosaures')">🦖 Dinosaures</div>
+<div class="cat" onclick="setCat('Humour')">😂 Humour</div>
+<div class="cat" onclick="setCat('Jeux vidéo')">🎮 Jeux vidéo</div>
+<div class="cat" onclick="setCat('Anti-arnaques')">🚨 Anti-arnaques</div>
+<div class="cat" onclick="setCat('Motivation')">💪 Motivation</div>
+<div class="cat" onclick="setCat('Histoire')">📚 Histoire</div>
+<div class="cat" onclick="setCat('Actualités')">🌍 Actualités</div>
+<div class="cat" onclick="setCat('Business')">💼 Business</div>
+<div class="cat" onclick="setCat('Enfants')">👶 Enfants</div>
+</div>
+</div>
+
+<div class="box">
+<h2>🔎 Recherche en ligne du sujet</h2>
+<input id="topic" placeholder="Écris ton sujet ou choisis une catégorie">
+<button onclick="searchOnline()">Rechercher en ligne</button>
+<div id="onlineResult" class="result"></div>
+</div>
+
+<div class="box">
+<h2>✍️ Création vidéo</h2>
+
+<select id="lang">
+<option value="fr-FR">Français</option>
+<option value="en-US">Anglais</option>
+<option value="es-ES">Espagnol</option>
+<option value="de-DE">Allemand</option>
+<option value="it-IT">Italien</option>
+</select>
+
+<select id="style">
+<option>TikTok accrocheur</option>
+<option>Vidéo drôle</option>
+<option>Vidéo éducative</option>
+<option>Publicité courte</option>
+<option>Vidéo enfant</option>
+</select>
+
+<select id="duration">
+<option value="30">30 secondes</option>
+<option value="45">45 secondes</option>
+<option value="60">1 minute maximum</option>
+</select>
+
+<button onclick="generateAll()">Créer script + prompt IA</button>
+
+<h3>🎙️ Script voix off</h3>
+<textarea id="scriptText"></textarea>
+
+<button onclick="speakText()">🔊 Lire avec voix</button>
+<button onclick="downloadText('script-video.txt','scriptText')">📥 Télécharger script</button>
+
+<h3>🎥 Prompt IA vidéo</h3>
+<textarea id="videoPrompt"></textarea>
+<button onclick="downloadText('prompt-video.txt','videoPrompt')">📥 Télécharger prompt</button>
+
+<h3>🖼️ Prompt image de couverture</h3>
+<textarea id="coverPrompt"></textarea>
+<button onclick="downloadText('prompt-cover.txt','coverPrompt')">📥 Télécharger couverture</button>
+
+<h3>🎬 Création MP4</h3>
+<p>Version gratuite : copie le prompt dans une IA vidéo comme Pika, Luma, Hailuo ou Runway pour générer ton MP4.</p>
+<button onclick="createMP4Project()">📦 Télécharger projet MP4</button>
+</div>
+
+<div class="box">
+<h2>💎 Premium</h2>
+<p>Fonctions à ajouter plus tard : export MP4 automatique, voix IA réaliste, sous-titres, HD 1080p, suppression du filigrane.</p>
+</div>
+
+<footer>
+<p>© 2026 Video IA Studio Free</p>
+</footer>
+
+<script>
+let onlineInfo = "";
+
+function setCat(cat){
+  document.getElementById("topic").value = cat;
+}
+
+async function searchOnline(){
+  const topic = document.getElementById("topic").value;
+  const div = document.getElementById("onlineResult");
+
+  if(!topic){
+    div.innerHTML = "Écris un sujet.";
+    return;
+  }
+
+  div.innerHTML = "Recherche en cours...";
+
+  try{
+    const url = "https://fr.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(topic);
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(data.extract){
+      onlineInfo = data.extract;
+      div.innerHTML = "<b>Résultat trouvé :</b><br>" + data.extract;
+    }else{
+      div.innerHTML = "Aucun résultat trouvé. Essaie un autre sujet.";
+    }
+  }catch(e){
+    div.innerHTML = "Erreur de recherche.";
+  }
+}
+
+function generateAll(){
+  const topic = document.getElementById("topic").value || "sujet populaire";
+  const style = document.getElementById("style").value;
+  const duration = document.getElementById("duration").value;
+
+  document.getElementById("scriptText").value =
+`🎬 Titre : ${topic}
+
+Durée : ${duration} secondes
+Style : ${style}
+
+Accroche :
+Tu savais ça sur ${topic} ?
+
+Informations :
+${onlineInfo || "Ajoute ici les informations trouvées sur le sujet."}
+
+Voix off :
+Aujourd’hui, on parle de ${topic}.
+C’est un sujet intéressant, parfait pour une vidéo courte.
+Regarde jusqu’à la fin pour découvrir l’essentiel.
+
+Fin :
+Abonne-toi pour plus de vidéos comme celle-ci !`;
+
+  document.getElementById("videoPrompt").value =
+`Create a vertical 9:16 video, maximum ${duration} seconds, topic: ${topic}, style: ${style}, dynamic scenes, cinematic camera movement, subtitles, voice over, bright colors, high quality, TikTok/Reels/Shorts format.`;
+
+  document.getElementById("coverPrompt").value =
+`Create an attractive YouTube Shorts/TikTok cover image about ${topic}, bold title, bright colors, eye-catching design, modern social media style.`;
+}
+
+function speakText(){
+  const text = document.getElementById("scriptText").value;
+  const lang = document.getElementById("lang").value;
+
+  if(!text){
+    alert("Crée d'abord un script.");
+    return;
+  }
+
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = lang;
+  speech.rate = 1;
+  speech.pitch = 1;
+  speechSynthesis.speak(speech);
+}
+
+function downloadText(filename,id){
+  const text = document.getElementById(id).value;
+  const blob = new Blob([text], {type:"text/plain"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+
+function createMP4Project(){
+  const script = document.getElementById("scriptText").value;
+  const prompt = document.getElementById("videoPrompt").value;
+
+  const project =
+`PROJET VIDEO MP4
+
+1. Copie ce prompt dans une IA vidéo :
+${prompt}
+
+2. Ajoute cette voix off :
+${script}
+
+3. Format conseillé :
+Vertical 9:16
+Durée max : 60 secondes
+Format export : MP4
+Plateformes : TikTok, Reels, Shorts`;
+
+  const blob = new Blob([project], {type:"text/plain"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "projet-video-mp4.txt";
+  link.click();
+}
+</script>
+
+</body>
+</html>
